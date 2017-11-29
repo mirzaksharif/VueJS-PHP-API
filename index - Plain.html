@@ -1,0 +1,48 @@
+<html>
+	<head>
+		<title>
+			VueJS
+		</title>
+		<script src="https://unpkg.com/vue"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<p>{{ status }}</p>
+		</div>
+		<script>
+			
+			var vm = new Vue ({
+				
+				el: '#app',
+				
+				data: { 
+					status: 'Hello World'
+				},
+				
+				created: function () {
+					this.loadQuote();
+				},
+				
+				methods: { 
+					loadQuote: function () {
+						this.status = 'Loading Quote...';
+						
+						var vm = this;
+						
+						axios.get('http://ron-swanson-quotes.herokuapp.com/v2/quotes')
+						.then ( function (response) {
+							vm.status = response.data[0];
+							console.log(response.data);
+						}) 
+						.catch (function (error){
+							vm.status = 'Invalid API';
+						})
+					}
+				}
+					
+			})
+		
+		</script>
+	</body>
+<html>

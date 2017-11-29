@@ -1,0 +1,110 @@
+<html>
+	<head>
+		<title>
+			VueJS
+		</title>
+		<script src="https://unpkg.com/vue"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		<script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.full.min.js"></script>
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+	</head>
+	<body>
+
+		<div id="app">
+			<p>{{ status }}</p>
+			
+			<line-chart></line-chart>	
+			
+			<input v-model="graphSalesData" type="text" id="sdata">
+			
+			<ul id="v-for-object" class="demo">
+			  <li v-for="(value, key) in object">
+				{{ key }} =>
+				{{ value.sale }}
+				|
+				{{ value.published_at }}
+			  </li>
+			</ul>
+			
+		</div>
+		<div id="grdata">
+		</div>
+		
+		<script>
+			
+			var vm = new Vue ({				
+				el: '#app',
+				data: { 
+					status: '',
+					graphSalesData: '',
+					object: {}
+				},
+				//Runs onLoad
+				created: function () {
+					this.loadData();
+				},
+				methods: { 
+					loadData: function () {
+						this.status = 'Loading Quote...';
+						
+						var vm = this;
+						
+						axios.get('https://private-627474-nulisec.apiary-mock.com/sales')
+						.then ( function (response) {
+							vm.status = 'Loaded';
+							vm.object = response.data;
+							
+							for (i=0; i <vm.object.length ; i++) {
+								//Saving data in string ...
+								vm.graphSalesData = vm.graphSalesData + '|' + vm.object[i].sale + ', ' + vm.object[i].published_at;
+							}
+							console.log(vm.graphSalesData);
+							
+							//Saving date for filteration and cleansing...
+							var params = new URLSearchParams();
+							params.append('firstName', vm.graphSalesData);
+							axios.post('filing.php', params).then(function (response) { console.log(response); }).catch(function (error) { console.log(error); });
+							
+							//Getting formatted data back
+							axios.get('filing2.php')
+							.then ( function (response) {
+								vm.status = response.data;
+								console.log(response);
+							}) 
+							.catch (function (error){
+								console.log(error);
+							})
+							
+						}) 
+						.catch (function (error){
+							vm.status = 'Invalid API';
+							console.log(error);
+						})
+					}
+					
+				}
+			})
+						
+			/*
+			Vue.component('line-chart', {
+			  extends: VueChartJs.Line,
+			  mounted () {
+				this.renderChart({
+				  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July','January', 'February', 'March', 'April', 'May', 'June', 'July','January', 'February', 'March', 'April', 'May', 'June', 'July'],
+				  datasets: [
+					{
+					  label: 'Data One',
+					  backgroundColor: '#f87979',
+					  data: [40, 39, 10, 40, 39, 80, 40]
+					  //data: vm.graphData
+					}
+				  ]
+				}, {responsive: true, maintainAspectRatio: false})
+			  }
+			  
+			  
+			})
+			*/
+		</script>
+	</body>
+<html>

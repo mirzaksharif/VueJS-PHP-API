@@ -1,0 +1,78 @@
+<html>
+	<head>
+		<title>
+			VueJS
+		</title>
+		<script src="https://unpkg.com/vue"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		<script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.full.min.js"></script>
+	</head>
+	<body>
+
+		<div id="app">
+			<p>{{ status }}</p>
+			<line-chart></line-chart>
+		</div>
+		
+		<script>
+			
+			var vm = new Vue ({				
+				el: '#app',
+				data: { 
+					status: '',
+					graphPoints:[],
+					graphLegends:[],
+					object: {}
+				},
+				//Runs onLoad
+				created: function () {
+					this.loadData();
+				},
+				methods: { 
+					loadData: function () {
+						this.status = 'Loading API data...';
+						
+						var vm = this;
+						
+						axios.get('api_call.php')
+						.then ( function (response) {
+							vm.status = 'Loaded';
+							vm.object = response.data;
+							
+							for (i=0; i <vm.object.length ; i++) {
+								//Populate graph arrays...
+								vm.graphPoints.push(vm.object[i].cost);
+								vm.graphLegends.push(vm.object[i].dated);
+							}
+							console.log(vm.graphPoints);
+							console.log(vm.graphLegends);
+									
+							//Chart.JS Library
+							Vue.component('line-chart', {
+							  extends: VueChartJs.Line,
+							  mounted () {
+								this.renderChart({
+								  labels: vm.graphLegends,
+								  datasets: [
+									{
+									  label: 'Amounts are in $',
+									  backgroundColor: '#f87979',
+									  data: vm.graphPoints
+									}
+								  ]
+								}, {responsive: true, maintainAspectRatio: false})
+							  }
+							})
+							
+							
+						}) 
+						.catch (function (error){
+							vm.status = 'Invalid API';
+							console.log(error);
+						})
+					}
+				}
+			})
+		</script>
+	</body>
+<html>

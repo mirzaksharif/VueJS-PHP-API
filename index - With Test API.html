@@ -1,0 +1,62 @@
+<html>
+	<head>
+		<title>
+			VueJS
+		</title>
+		<script src="https://unpkg.com/vue"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<p>{{ status }}</p>
+			
+			<ul id="v-for-object" class="demo">
+			  <li v-for="(value, key) in object">
+				{{ key }} =>
+				{{ value.sale }}
+				|
+				{{ value.published_at }}
+			  </li>
+			</ul>
+			
+			
+		</div>
+		<script>
+			
+			var vm = new Vue ({
+				
+				el: '#app',
+				
+				data: { 
+					status: '',
+					object: {}
+				},
+				
+				//Runs onLoad
+				created: function () {
+					this.loadData();
+				},
+				
+				methods: { 
+					loadData: function () {
+						this.status = 'Loading Quote...';
+						
+						var vm = this;
+						
+						axios.get('https://private-627474-nulisec.apiary-mock.com/sales')
+						.then ( function (response) {
+							vm.status = 'Loaded';
+							vm.object = response.data;
+							console.log(vm.object);
+						}) 
+						.catch (function (error){
+							vm.status = 'Invalid API';
+						})
+					}
+				}
+					
+			})
+		
+		</script>
+	</body>
+<html>
